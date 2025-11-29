@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 'app'
+  labels:
+    app: &label app
+spec:
+  selector:
+    matchLabels:
+      app: *label
+  template:
+    metadata:
+      labels:
+        app: *label
+    spec:
+      initContainers:
+        - name: 'migrations'
+          image: 'busybox'
+          command: ['sh', '-c', 'echo Running migrations...; sleep 15']
+      containers:
+        - name: 'app'
+          image: 'busybox'
+          command: ['sleep', 'infinity']

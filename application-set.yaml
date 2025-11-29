@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: 'app'
+  namespace: 'argocd'
+spec:
+  goTemplate: true
+  goTemplateOptions: [ 'missingkey=error' ]
+  generators:
+    - git:
+        repoURL: 'https://github.com/skwair/argocd-issue-25444.git'
+        revision: 'HEAD'
+        directories:
+          - path: 'overlays/*'
+  template:
+    metadata:
+      name: 'app-{{ index .path.segments 1 }}'
+      labels:
+        env: 'prod'
+    spec:
+      project: 'default'
+      source:
+        repoURL: 'https://github.com/skwair/argocd-issue-25444.git'
+        targetRevision: 'HEAD'
+        path: '{{ .path.path }}'
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: 'app-{{ index .path.segments 1 }}'
+      syncPolicy:
+        syncOptions:
+          - 'CreateNamespace=true'
+          - 'ServerSideApply=true'
+#          - 'PruneLast=true'
+#        automated:
+#          prune: true
+  strategy:
+    type: 'RollingSync'
+    rollingSync:
+      steps:
+        - matchExpressions:
+            - key: 'env'
+              operator: 'In'
+              values: ['prod']
+          maxUpdate: 1
