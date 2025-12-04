@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - 'deployment.yaml'
   - 'configmap1.yaml'
-  - 'configmap2.yaml'
+  # - 'configmap2.yaml'
